@@ -1,54 +1,75 @@
-# React + TypeScript + Vite
+# PKCE Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, secure PKCE (Proof Key for Code Exchange) generator for OAuth 2.0 authentication flows.
 
-Currently, two official plugins are available:
+![PKCE Generator Screenshot](./src/assets/pkce.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 🔒 **Cryptographically secure** random code verifier generation
+- 🔄 **SHA256-based** code challenge generation  
+- 📋 **One-click copy** to clipboard
+- 🌙 **Dark/Light mode** support
+- 📱 **Mobile-responsive** design
+- ⚡ **Fast & modern** - Built with React, TypeScript, and Tailwind CSS
+- 🎨 **Beautiful animations** with Framer Motion
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🌐 Demo
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+[**Live Demo →**](https://pkce-generator.vercel.app)
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React 19, TypeScript
+- **Styling:** Tailwind CSS V4, shadcn/ui
+- **Animations:** Framer Motion  
+- **Build Tool:** Vite
+- **Package Manager:** Bun
+- **Deployment:** Vercel
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/MrHacker26/pkce-generator.git
+
+# Navigate to project
+cd pkce-generator
+
+# Install dependencies
+bun install
+
+# Start development server
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📖 What is PKCE?
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+PKCE (Proof Key for Code Exchange) is an extension to OAuth 2.0 that provides additional security for public clients (mobile apps, SPAs) by using a dynamically generated secret.
+
+### How it works:
+1. **Code Verifier**: A cryptographically random string (43-128 characters)
+2. **Code Challenge**: Base64url-encoded SHA256 hash of the verifier
+3. **Authentication**: Send challenge with auth request, verifier with token request
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Tarun Joshi**
+- GitHub: [@MrHacker26](https://github.com/MrHacker26)
+- Project: [PKCE Generator](https://github.com/MrHacker26/pkce-generator)
+
+---
+
+⭐ **Star this repo if you find it helpful!**
+
+Made with ❤️ by [Tarun Joshi](https://github.com/MrHacker26)
