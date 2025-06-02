@@ -9,7 +9,7 @@ A modern, secure PKCE (Proof Key for Code Exchange) generator for OAuth 2.0 auth
 - 🔒 **Cryptographically secure** random code verifier generation
 - 🔄 **SHA256-based** code challenge generation  
 - 📋 **One-click copy** to clipboard
-- 🌙 **Dark/Light mode** support
+- 🌙 **Dark/Light mode** support (coming soon)
 - 📱 **Mobile-responsive** design
 - ⚡ **Fast & modern** - Built with React, TypeScript, and Tailwind CSS
 - 🎨 **Beautiful animations** with Framer Motion
