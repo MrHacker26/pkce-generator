@@ -1,7 +1,29 @@
 {
   "name": "pkce-generator",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A secure PKCE (Proof Key for Code Exchange) generator for OAuth 2.0 flows",
+  "author": {
+    "name": "Tarun Joshi",
+    "url": "https://github.com/MrHacker26"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrHacker26/pkce-generator"
+  },
+  "homepage": "https://github.com/MrHacker26/pkce-generator#readme",
+  "license": "MIT",
+  "keywords": [
+    "pkce",
+    "oauth2",
+    "authentication",
+    "security",
+    "react",
+    "typescript",
+    "tailwind",
+    "code-verifier",
+    "code-challenge"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
