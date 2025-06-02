@@ -19,10 +19,10 @@ export default function Generator() {
     setIsGenerating(true)
     setError('')
     try {
-      const v = generateCodeVerifier()
-      const c = await generateCodeChallenge(v)
-      setVerifier(v)
-      setChallenge(c)
+      const pkceCodeVerifier = generateCodeVerifier()
+      const pkceCodeChallenge = await generateCodeChallenge(pkceCodeVerifier)
+      setVerifier(pkceCodeVerifier)
+      setChallenge(pkceCodeChallenge)
       toast.success('PKCE values generated successfully!')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate PKCE values'
