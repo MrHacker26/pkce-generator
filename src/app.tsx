@@ -1,5 +1,4 @@
 import Generator from './components/generator'
-import { Toaster } from 'sonner'
 import Header from './components/header'
 import { Footer } from './components/footer'
 import { Navigation } from './components/navigation'
@@ -21,18 +20,6 @@ export default function App() {
         </motion.div>
       </div>
       <Footer />
-      <Toaster
-        position="bottom-right"
-        richColors
-        theme="system"
-        toastOptions={{
-          style: {
-            background: 'hsl(var(--card))',
-            color: 'hsl(var(--card-foreground))',
-            border: '1px solid hsl(var(--border))',
-          },
-        }}
-      />
     </div>
   )
 }
