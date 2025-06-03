@@ -18,14 +18,17 @@ type PKCEFieldProps = {
 export function PKCEField({ id, label, description, value, rows = 2, delay = 0, className, style }: PKCEFieldProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3, delay }}
-      className={cn('space-y-4', className)}
+      transition={{
+        duration: 0.2,
+        delay,
+        ease: [0.4, 0.0, 0.2, 1],
+      }}
+      className={(cn('space-y-4'), className)}
       style={style}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between space-y-3">
         <div className="space-y-1">
           <Label htmlFor={id} className="text-base font-semibold text-foreground">
             {label}
@@ -35,9 +38,13 @@ export function PKCEField({ id, label, description, value, rows = 2, delay = 0, 
         <CopyButton text={value} field={id} className="h-8 px-3 text-xs" />
       </div>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: delay + 0.1 }}
+        transition={{
+          duration: 0.2,
+          delay: delay + 0.05,
+          ease: 'easeOut',
+        }}
       >
         <Textarea
           id={id}

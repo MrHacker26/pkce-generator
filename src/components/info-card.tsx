@@ -7,7 +7,7 @@ export default function InfoCard() {
       <Card className="border border-border/50 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2 text-card-foreground">
-            <Info className="h-5 w-5 text-primary" />
+            <Info className="size-5 text-primary" />
             Usage Instructions
           </CardTitle>
         </CardHeader>
@@ -32,7 +32,7 @@ export default function InfoCard() {
       <Card className="border border-border/50 bg-card/60 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2 text-card-foreground">
-            <CheckCircle className="h-5 w-5 text-success" />
+            <CheckCircle className="size-5 text-success" />
             Security Benefits
           </CardTitle>
         </CardHeader>
