@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { generateCodeVerifier, generateCodeChallenge } from '../lib/pkce'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,8 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { cn, getSecurityLevel } from '@/lib/utils'
+import { useKeyboardShortcuts, type KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts'
+import { ShortcutsPanel } from '@/components/ui/shortcuts-panel'
 
 export default function Generator() {
   const [verifier, setVerifier] = useState<string>('')
@@ -21,6 +23,10 @@ export default function Generator() {
   const [justCopiedAll, setJustCopiedAll] = useState(false)
   const [verifierLength, setVerifierLength] = useState<number>(128)
   const [showSettings, setShowSettings] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
+
+  const generateButtonRef = useRef<HTMLButtonElement>(null)
+  const settingsButtonRef = useRef<HTMLButtonElement>(null)
 
   async function handleGenerate() {
     setIsGenerating(true)
@@ -72,8 +78,118 @@ export default function Generator() {
     }
   }
 
-  const hasValues = verifier && challenge
+  async function copyVerifier() {
+    if (!verifier) return
+    try {
+      await navigator.clipboard.writeText(verifier)
+      toast.success('Code verifier copied!')
+    } catch {
+      toast.error('Failed to copy verifier')
+    }
+  }
 
+  async function copyChallenge() {
+    if (!challenge) return
+    try {
+      await navigator.clipboard.writeText(challenge)
+      toast.success('Code challenge copied!')
+    } catch {
+      toast.error('Failed to copy challenge')
+    }
+  }
+
+  function increaseLength() {
+    setVerifierLength((prev) => Math.min(128, prev + 5))
+  }
+
+  function decreaseLength() {
+    setVerifierLength((prev) => Math.max(43, prev - 5))
+  }
+
+  function toggleSettings() {
+    setShowSettings((prev) => !prev)
+  }
+
+  function focusGenerateButton() {
+    generateButtonRef.current?.focus()
+  }
+
+  function toggleShortcuts() {
+    setShowShortcuts((prev) => !prev)
+  }
+
+  const shortcuts: KeyboardShortcut[] = [
+    {
+      keys: ['mod', 'g'],
+      description: 'Generate new PKCE values',
+      action: handleGenerate,
+      category: 'Actions',
+    },
+    {
+      keys: ['mod', 'k'],
+      description: 'Clear all values',
+      action: handleClear,
+      category: 'Actions',
+    },
+    {
+      keys: ['mod', 'shift', 'c'],
+      description: 'Copy all as JSON',
+      action: handleCopyAll,
+      category: 'Copy',
+    },
+    {
+      keys: ['mod', 'c'],
+      description: 'Copy code verifier',
+      action: copyVerifier,
+      category: 'Copy',
+    },
+    {
+      keys: ['mod', 'shift', 'v'],
+      description: 'Copy code challenge',
+      action: copyChallenge,
+      category: 'Copy',
+    },
+    {
+      keys: ['mod', ','],
+      description: 'Toggle settings panel',
+      action: toggleSettings,
+      category: 'Navigation',
+    },
+    {
+      keys: ['?'],
+      description: 'Show keyboard shortcuts',
+      action: toggleShortcuts,
+      category: 'Help',
+    },
+    {
+      keys: ['shift', '?'],
+      description: 'Show keyboard shortcuts',
+      action: toggleShortcuts,
+      category: 'Help',
+    },
+    {
+      keys: ['arrowup'],
+      description: 'Increase verifier length (+5)',
+      action: increaseLength,
+      category: 'Settings',
+    },
+    {
+      keys: ['arrowdown'],
+      description: 'Decrease verifier length (-5)',
+      action: decreaseLength,
+      category: 'Settings',
+    },
+    {
+      keys: ['escape'],
+      description: 'Focus generate button',
+      action: focusGenerateButton,
+      category: 'Navigation',
+    },
+  ]
+
+  useKeyboardShortcuts(shortcuts)
+
+  const hasValues = verifier && challenge
   const security = getSecurityLevel(verifierLength)
 
   return (
@@ -86,7 +202,9 @@ export default function Generator() {
         <Card className="border border-border/50 shadow-lg bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center border-b border-border/50">
             <div className="flex items-center justify-between">
-              <div className="flex-1" />
+              <div className="flex-1 flex justify-start">
+                <ShortcutsPanel shortcuts={shortcuts} isOpen={showShortcuts} onOpenChange={setShowShortcuts} />
+              </div>
               <div className="text-center">
                 <CardTitle className="text-xl sm:text-2xl font-semibold text-card-foreground">
                   Generate PKCE Values
@@ -98,10 +216,12 @@ export default function Generator() {
               <div className="flex-1 flex justify-end">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
+                    ref={settingsButtonRef}
                     variant="ghost"
                     size="icon"
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="h-8 w-8"
+                    onClick={toggleSettings}
+                    className="size-8"
+                    title="Toggle settings (Cmd+,)"
                   >
                     <motion.div animate={{ rotate: showSettings ? 180 : 0 }} transition={{ duration: 0.2 }}>
                       <Settings className="size-4" />
@@ -153,9 +273,15 @@ export default function Generator() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-muted-foreground">
-                      RFC 7636 requires 43-128 characters. Higher length = better security.
-                    </p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>RFC 7636 requires 43-128 characters. Higher length = better security.</span>
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="text-xs">
+                          ↑↓
+                        </Badge>
+                        <span>to adjust</span>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -169,10 +295,12 @@ export default function Generator() {
                 className="flex-1"
               >
                 <Button
+                  ref={generateButtonRef}
                   onClick={handleGenerate}
                   className="w-full h-12 sm:h-14 text-sm sm:text-base font-medium shadow-sm"
                   size="lg"
                   disabled={isGenerating}
+                  title="Generate PKCE values (Cmd+G)"
                 >
                   <motion.div
                     animate={isGenerating ? { rotate: 360 } : { rotate: 0 }}
@@ -194,7 +322,7 @@ export default function Generator() {
               </motion.div>
 
               <AnimatePresence>
-                {hasValues && (
+                {hasValues ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8, height: 0 }}
                     animate={{ opacity: 1, scale: 1, height: 'auto' }}
@@ -209,18 +337,19 @@ export default function Generator() {
                       variant="outline"
                       size="lg"
                       className="w-full sm:w-auto h-12 sm:h-14 px-4 sm:px-6 text-sm sm:text-base"
+                      title="Clear values (Cmd+K)"
                     >
                       <XIcon className="size-4 sm:hidden mr-2" />
                       <span className="hidden sm:inline">Clear</span>
                       <span className="sm:hidden">Clear Values</span>
                     </Button>
                   </motion.div>
-                )}
+                ) : null}
               </AnimatePresence>
             </div>
 
             <AnimatePresence>
-              {hasValues && (
+              {hasValues ? (
                 <motion.div
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -234,6 +363,7 @@ export default function Generator() {
                       variant="secondary"
                       size="sm"
                       className="gap-2 h-10 px-4 text-sm font-medium bg-accent/50 hover:bg-accent/70 border border-border/30"
+                      title="Copy all as JSON (Cmd+Shift+C)"
                     >
                       <AnimatePresence mode="wait">
                         {justCopiedAll ? (
@@ -265,11 +395,11 @@ export default function Generator() {
                     </Button>
                   </motion.div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
 
             <AnimatePresence>
-              {error && (
+              {error ? (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -278,7 +408,7 @@ export default function Generator() {
                 >
                   <p className="text-destructive text-xs sm:text-sm font-medium">{error}</p>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
 
             <AnimatePresence>
