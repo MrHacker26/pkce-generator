@@ -2,12 +2,16 @@ import { useState } from 'react'
 import { generateCodeVerifier, generateCodeChallenge } from '../lib/pkce'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { RefreshCwIcon, XIcon, Copy, ClipboardCheck } from 'lucide-react'
+import { RefreshCwIcon, XIcon, Copy, ClipboardCheck, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 import InfoCard from './info-card'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PKCEField } from '@/components/ui/pkce-field'
 import { SuccessIndicator } from '@/components/ui/success-indicator'
+import { Slider } from '@/components/ui/slider'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { cn, getSecurityLevel } from '@/lib/utils'
 
 export default function Generator() {
   const [verifier, setVerifier] = useState<string>('')
@@ -15,16 +19,18 @@ export default function Generator() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string>('')
   const [justCopiedAll, setJustCopiedAll] = useState(false)
+  const [verifierLength, setVerifierLength] = useState<number>(128)
+  const [showSettings, setShowSettings] = useState(false)
 
   async function handleGenerate() {
     setIsGenerating(true)
     setError('')
     try {
-      const pkceCodeVerifier = generateCodeVerifier()
+      const pkceCodeVerifier = generateCodeVerifier(verifierLength)
       const pkceCodeChallenge = await generateCodeChallenge(pkceCodeVerifier)
       setVerifier(pkceCodeVerifier)
       setChallenge(pkceCodeChallenge)
-      toast.success('PKCE values generated successfully!')
+      toast.success(`PKCE values generated with ${verifierLength} character verifier!`)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate PKCE values'
       setError(errorMessage)
@@ -49,6 +55,7 @@ export default function Generator() {
       code_verifier: verifier,
       code_challenge: challenge,
       code_challenge_method: 'S256',
+      verifier_length: verifier.length,
       generated_at: new Date().toISOString(),
     }
 
@@ -67,6 +74,8 @@ export default function Generator() {
 
   const hasValues = verifier && challenge
 
+  const security = getSecurityLevel(verifierLength)
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <motion.div
@@ -76,16 +85,82 @@ export default function Generator() {
       >
         <Card className="border border-border/50 shadow-lg bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center border-b border-border/50">
-            <CardTitle className="text-xl sm:text-2xl font-semibold text-card-foreground">
-              Generate PKCE Values
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-sm sm:text-base">
-              Create a cryptographically secure code verifier and challenge pair
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div className="flex-1" />
+              <div className="text-center">
+                <CardTitle className="text-xl sm:text-2xl font-semibold text-card-foreground">
+                  Generate PKCE Values
+                </CardTitle>
+                <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                  Create a cryptographically secure code verifier and challenge pair
+                </CardDescription>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="h-8 w-8"
+                  >
+                    <motion.div animate={{ rotate: showSettings ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                      <Settings className="size-4" />
+                    </motion.div>
+                  </Button>
+                </motion.div>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent className="p-4 sm:p-8 space-y-6 sm:space-y-8">
-            {/* Main action buttons */}
+            <AnimatePresence>
+              {showSettings && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}
+                  className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border/50 overflow-hidden"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="length-slider" className="text-sm font-medium">
+                        Code Verifier Length
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {verifierLength} chars
+                        </Badge>
+                        <Badge variant="secondary" className={cn('text-xs', security.color)}>
+                          {security.level}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Slider
+                        id="length-slider"
+                        value={[verifierLength]}
+                        onValueChange={([value]) => setVerifierLength(value)}
+                        min={43}
+                        max={128}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>43 (Min)</span>
+                        <span>128 (Max)</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      RFC 7636 requires 43-128 characters. Higher length = better security.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
               <motion.div
                 whileHover={{ scale: 1.02 }}
@@ -112,7 +187,7 @@ export default function Generator() {
                     <RefreshCwIcon className="size-4 sm:h-5 sm:w-5" />
                   </motion.div>
                   <span className="hidden sm:inline">
-                    {isGenerating ? 'Generating...' : 'Generate New PKCE Values'}
+                    {isGenerating ? 'Generating...' : `Generate ${verifierLength}-char PKCE`}
                   </span>
                   <span className="sm:hidden">{isGenerating ? 'Generating...' : 'Generate PKCE'}</span>
                 </Button>
@@ -224,7 +299,7 @@ export default function Generator() {
 
                   <PKCEField
                     id="verifier"
-                    label="Code Verifier"
+                    label={`Code Verifier (${verifier.length} characters)`}
                     description="High-entropy cryptographic random string (43-128 characters)"
                     value={verifier}
                     rows={3}
